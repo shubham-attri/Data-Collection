@@ -11,19 +11,35 @@ import iOS_BLE_Library
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @StateObject private var bluetoothManager = BluetoothManager()
+    @StateObject private var bluetoothManager: BluetoothManager
     @Query private var sensorData: [SensorData]
+    
+    init(modelContext: ModelContext) {
+        _bluetoothManager = StateObject(wrappedValue: BluetoothManager(modelContext: modelContext))
+    }
     
     var body: some View {
         NavigationStack {
             VStack {
+                if let errorMessage = bluetoothManager.errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .padding()
+                }
+                
                 // Device Scanner
                 if bluetoothManager.isScanning {
                     List(bluetoothManager.discoveredDevices) { device in
                         Button(action: {
                             bluetoothManager.connect(to: device)
                         }) {
-                            Text(device.name)
+                            HStack {
+                                Text(device.name)
+                                Spacer()
+                                if case .connecting = bluetoothManager.connectionState {
+                                    ProgressView()
+                                }
+                            }
                         }
                     }
                 }
@@ -32,8 +48,20 @@ struct ContentView: View {
                 if let device = bluetoothManager.connectedDevice {
                     VStack {
                         Text("Connected to: \(device.name)")
-                        Text("Status: Connected")
-                            .foregroundColor(.green)
+                        switch bluetoothManager.connectionState {
+                        case .connected:
+                            Text("Status: Connected")
+                                .foregroundColor(.green)
+                        case .connecting:
+                            Text("Status: Connecting...")
+                                .foregroundColor(.orange)
+                        case .failed(let error):
+                            Text("Status: Failed - \(error.localizedDescription)")
+                                .foregroundColor(.red)
+                        case .disconnected:
+                            Text("Status: Disconnected")
+                                .foregroundColor(.red)
+                        }
                     }
                     .padding()
                 }
@@ -86,7 +114,8 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
-        .modelContainer(for: [Item.self, SensorData.self], inMemory: true)
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: [Item.self, SensorData.self], configurations: config)
+    return ContentView(modelContext: container.mainContext)
 }
 

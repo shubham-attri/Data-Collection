@@ -13,6 +13,7 @@ struct Data_CollectionApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
+            SensorData.self  // Add SensorData to the schema
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

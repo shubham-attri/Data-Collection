@@ -1,8 +1,8 @@
 import Foundation
-import iOS_BLE_Library
+import CoreBluetooth
 
 struct BLEDevice: Identifiable {
-    let peripheral: Peripheral
+    let peripheral: CBPeripheral
     var id: UUID { peripheral.identifier }
     var name: String { peripheral.name ?? "Unknown Device" }
 } 

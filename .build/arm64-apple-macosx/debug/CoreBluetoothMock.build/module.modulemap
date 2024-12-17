@@ -1,0 +1,4 @@
+module CoreBluetoothMock {
+    header "/Users/attri/Desktop/Attri/Non-Invasive-Glucose-Monitoring/Data-Collection/.build/arm64-apple-macosx/debug/CoreBluetoothMock.build/CoreBluetoothMock-Swift.h"
+    requires objc
+}

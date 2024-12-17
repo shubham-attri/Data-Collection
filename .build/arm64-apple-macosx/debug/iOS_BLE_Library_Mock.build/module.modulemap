@@ -1,0 +1,4 @@
+module iOS_BLE_Library_Mock {
+    header "/Users/attri/Desktop/Attri/Non-Invasive-Glucose-Monitoring/Data-Collection/.build/arm64-apple-macosx/debug/iOS_BLE_Library_Mock.build/iOS-BLE-Library-Mock-Swift.h"
+    requires objc
+}

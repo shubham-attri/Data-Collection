@@ -7,12 +7,13 @@
 
 import SwiftUI
 import SwiftData
-import iOS_BLE_Library
+import CoreBluetooth
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @StateObject private var bluetoothManager: BluetoothManager
-    @Query private var sensorData: [SensorData]
+    @Query(sort: \SensorData.timestamp, order: .reverse) private var sensorData: [SensorData]
+    @State private var isCollecting = false
     
     init(modelContext: ModelContext) {
         _bluetoothManager = StateObject(wrappedValue: BluetoothManager(modelContext: modelContext))
@@ -20,102 +21,134 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
-                if let errorMessage = bluetoothManager.errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .padding()
-                }
+            VStack(spacing: 20) {
+                // Status Section
+                statusSection
                 
                 // Device Scanner
                 if bluetoothManager.isScanning {
-                    List(bluetoothManager.discoveredDevices) { device in
-                        Button(action: {
-                            bluetoothManager.connect(to: device)
-                        }) {
-                            HStack {
-                                Text(device.name)
-                                Spacer()
-                                if case .connecting = bluetoothManager.connectionState {
-                                    ProgressView()
-                                }
-                            }
-                        }
-                    }
+                    deviceListSection
                 }
                 
-                // Connected Device Status
-                if let device = bluetoothManager.connectedDevice {
-                    VStack {
-                        Text("Connected to: \(device.name)")
-                        switch bluetoothManager.connectionState {
-                        case .connected:
-                            Text("Status: Connected")
-                                .foregroundColor(.green)
-                        case .connecting:
-                            Text("Status: Connecting...")
-                                .foregroundColor(.orange)
-                        case .failed(let error):
-                            Text("Status: Failed - \(error.localizedDescription)")
-                                .foregroundColor(.red)
-                        case .disconnected:
-                            Text("Status: Disconnected")
-                                .foregroundColor(.red)
-                        }
-                    }
-                    .padding()
+                // Connected Device Controls
+                if case .connected = bluetoothManager.connectionState {
+                    connectedDeviceSection
                 }
                 
-                // Collected Data List
-                List {
-                    ForEach(sensorData) { data in
-                        VStack(alignment: .leading) {
-                            Text("Value: \(data.value)")
-                            Text("Time: \(data.timestamp, format: .dateTime)")
-                            Text("Synced: \(data.isSynced ? "Yes" : "No")")
-                                .foregroundColor(data.isSynced ? .green : .red)
-                        }
-                    }
-                    .onDelete(perform: deleteSensorData)
+                // Data Display
+                if !sensorData.isEmpty {
+                    dataDisplaySection
                 }
             }
+            .padding()
+            .navigationTitle("GT TURBO Scanner")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        bluetoothManager.isScanning ? bluetoothManager.stopScanning() : bluetoothManager.startScanning()
-                    }) {
-                        Text(bluetoothManager.isScanning ? "Stop Scanning" : "Start Scanning")
-                    }
+                    scanButton
                 }
+            }
+            .alert("Error", isPresented: .constant(bluetoothManager.errorMessage != nil)) {
+                Button("OK") { bluetoothManager.errorMessage = nil }
+            } message: {
+                Text(bluetoothManager.errorMessage ?? "")
+            }
+        }
+    }
+    
+    private var statusSection: some View {
+        HStack {
+            Image(systemName: bluetoothManager.isScanning ? "antenna.radiowaves.left.and.right" : "antenna.radiowaves.left.and.right.slash")
+                .foregroundColor(bluetoothManager.isScanning ? .blue : .gray)
+            Text(bluetoothManager.isScanning ? "Scanning for GT TURBO..." : "Scan for GT TURBO")
+            if case .connecting = bluetoothManager.connectionState {
+                ProgressView()
+            }
+        }
+        .padding()
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(10)
+    }
+    
+    private var deviceListSection: some View {
+        List(bluetoothManager.discoveredDevices, id: \.identifier) { (device: CBPeripheral) in
+            Button(action: { bluetoothManager.connect(to: device) }) {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(device.name ?? "Unknown Device")
+                            .font(.headline)
+                        Text(device.identifier.uuidString)
+                            .font(.caption)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                }
+            }
+            .disabled(device.name != "GT TURBO")
+        }
+    }
+    
+    private var connectedDeviceSection: some View {
+        VStack(spacing: 15) {
+            Text("Battery: \(bluetoothManager.batteryLevel)%")
+                .font(.headline)
+            
+            HStack(spacing: 20) {
+                Button(action: {
+                    isCollecting.toggle()
+                    if isCollecting {
+                        bluetoothManager.startDataCollection()
+                    } else {
+                        bluetoothManager.stopDataCollection()
+                    }
+                }) {
+                    Label(isCollecting ? "Stop" : "Start", systemImage: isCollecting ? "stop.fill" : "play.fill")
+                        .frame(minWidth: 100)
+                }
+                .buttonStyle(.borderless)
+                .background(isCollecting ? Color.red.opacity(0.2) : Color.blue.opacity(0.2))
+                .cornerRadius(8)
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: syncData) {
-                        Label("Sync", systemImage: "arrow.triangle.2.circlepath")
-                    }
+                Button(action: {
+                    bluetoothManager.checkMemoryStatus()
+                }) {
+                    Label("Check Memory", systemImage: "memorychip")
+                }
+                .buttonStyle(.borderless)
+                .background(Color.gray.opacity(0.2))
+                .cornerRadius(8)
+            }
+        }
+        .padding()
+        .background(Color.blue.opacity(0.1))
+        .cornerRadius(10)
+    }
+    
+    private var dataDisplaySection: some View {
+        List {
+            ForEach(sensorData.prefix(5)) { data in
+                VStack(alignment: .leading) {
+                    Text("Sensor: \(data.deviceId)")
+                    Text("Value: \(String(format: "%.2f", data.value))")
+                    Text(data.timestamp.formatted())
+                        .font(.caption)
                 }
             }
-            .navigationTitle("Data Collection")
         }
     }
     
-    private func deleteSensorData(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(sensorData[index])
-            }
+    private var scanButton: some View {
+        Button(action: {
+            bluetoothManager.isScanning ? bluetoothManager.stopScanning() : bluetoothManager.startScanning()
+        }) {
+            Image(systemName: bluetoothManager.isScanning ? "stop.circle.fill" : "play.circle.fill")
+                .font(.title2)
         }
-    }
-    
-    private func syncData() {
-        // TODO: Implement server sync logic
-        let unsyncedData = sensorData.filter { !$0.isSynced }
-        // Add your server communication logic here
     }
 }
 
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: [Item.self, SensorData.self], configurations: config)
+    let container = try! ModelContainer(for: SensorData.self, configurations: config)
     return ContentView(modelContext: container.mainContext)
 }
 

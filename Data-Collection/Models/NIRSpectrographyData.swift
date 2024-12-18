@@ -1,23 +1,26 @@
 import Foundation
-import iOS_BLE_Library
 
 struct NIRSpectrographyData {
     let timestamp: UInt32
-    let sensorValues: [UInt16] // 18 sensor channels
+    let sensorValues: [UInt16]  // 18 sensor channels
     
-    init(data: Data) {
-        var offset = 0
+    static let serviceUUID = CBUUID(string: "1819")
+    static let characteristicUUID = CBUUID(string: "2A3E")
+    
+    init(data: Data) throws {
+        guard data.count >= 4 + (18 * 2) else {
+            throw BLEError.invalidDataFormat
+        }
         
-        // Extract timestamp (4 bytes)
-        timestamp = data.withUnsafeBytes { $0.load(fromByteOffset: offset, as: UInt32.self) }
-        offset += 4
+        // Extract timestamp (first 4 bytes)
+        timestamp = data.prefix(4).withUnsafeBytes { $0.load(as: UInt32.self) }
         
-        // Extract sensor values (18 * 2 bytes)
+        // Extract sensor values (18 UInt16 values)
         var values: [UInt16] = []
-        for _ in 0..<18 {
-            let value = data.withUnsafeBytes { $0.load(fromByteOffset: offset, as: UInt16.self) }
+        for i in 0..<18 {
+            let startIndex = 4 + (i * 2)
+            let value = data.subdata(in: startIndex..<(startIndex + 2)).withUnsafeBytes { $0.load(as: UInt16.self) }
             values.append(value)
-            offset += 2
         }
         sensorValues = values
     }

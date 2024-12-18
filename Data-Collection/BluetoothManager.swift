@@ -4,242 +4,330 @@ import CoreBluetooth
 import Combine
 import os.log
 
+enum ConnectionState {
+    case disconnected
+    case connecting
+    case connected
+}
+
+// Protocol to abstract peripheral behavior
+protocol Peripheral: AnyObject {
+    var name: String? { get }
+    var identifier: UUID { get }
+}
+
+extension CBPeripheral: Peripheral {}
+
 class BluetoothManager: NSObject, ObservableObject {
     // MARK: - Published Properties
-    @Published var isScanning = false
-    @Published var discoveredDevices: [CBPeripheral] = []
-    @Published var connectedDevice: CBPeripheral?
     @Published var connectionState: ConnectionState = .disconnected
-    @Published var errorMessage: String?
+    @Published var isScanning = false
     @Published var batteryLevel: UInt8 = 0
-    @Published var nirData: NIRSpectrographyData?
+    @Published var errorMessage: String?
     
-    // MARK: - Private Properties
-    private var centralManager: CBCentralManager?
-    private var modelContext: ModelContext?
-    private let logger = Logger(subsystem: "com.example.datacollection", category: "BluetoothManager")
+    @Published var isCollectingData = false
+    @Published var isSyncing = false
     
-    // MARK: - Service UUIDs
-    private let batteryServiceUUID = CBUUID(string: "180F")
-    private let writeServiceUUID = CBUUID(string: "1818")
-    private let readServiceUUID = CBUUID(string: "1819")
+    // Add modelContext as a property
+    private let modelContext: ModelContext
     
-    // MARK: - Characteristic UUIDs
-    private let batteryCharUUID = CBUUID(string: "2A19")
-    private let writeCharUUID = CBUUID(string: "2A3D")
-    private let notifyCharUUID = CBUUID(string: "2A3E")
+    #if targetEnvironment(simulator)
+    @Published var discoveredDevices: [MockPeripheral] = []
+    var connectedPeripheral: MockPeripheral?
+    private var mockTimer: Timer?
     
-    // MARK: - Types
-    enum ConnectionState {
-        case disconnected
-        case connecting
-        case connected
-        case failed(Error)
+    // Add mock characteristic for simulator
+    private var mockWriteCharacteristic: MockCharacteristic?
+    
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+        super.init()
+        // Simulate initial delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.simulateDeviceDiscovery()
+        }
     }
     
-    // MARK: - Initialization
+    private func simulateDeviceDiscovery() {
+        let mockDevice = MockPeripheral(name: "GT TURBO")
+        if !discoveredDevices.contains(where: { $0.identifier == mockDevice.identifier }) {
+            discoveredDevices = [mockDevice]
+        }
+    }
+    
+    #else
+    // MARK: - Real Device Properties
+    @Published var discoveredDevices: [CBPeripheral] = []
+    var connectedPeripheral: CBPeripheral?
+    private var centralManager: CBCentralManager!
+    private var writeCharacteristic: CBCharacteristic?
+    private var notifyCharacteristic: CBCharacteristic?
+    
+    private let serviceUUIDs = [
+        CBUUID(string: "180F"), // Battery
+        CBUUID(string: "1818"), // Write
+        CBUUID(string: "1819")  // Read
+    ]
+    
+    private let characteristicUUIDs = [
+        CBUUID(string: "2A19"), // Battery
+        CBUUID(string: "2A3D"), // Write (Control)
+        CBUUID(string: "2A3E")  // Read (Data)
+    ]
+    
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
-        logger.info("BluetoothManager initialized")
     }
+    #endif
     
-    // MARK: - Public Methods
+    // MARK: - Common Public Methods
     func startScanning() {
-        guard centralManager?.state == .poweredOn else {
-            errorMessage = "Bluetooth is not available"
+        isScanning = true
+        #if targetEnvironment(simulator)
+        simulateDeviceDiscovery()
+        #else
+        guard let central = centralManager,
+              central.state == .poweredOn else {
+            errorMessage = "Bluetooth not ready"
             return
         }
-        
-        let services = [batteryServiceUUID, writeServiceUUID, readServiceUUID]
-        centralManager?.scanForPeripherals(withServices: services, options: nil)
-        isScanning = true
-        logger.info("Started scanning for devices")
+        central.scanForPeripherals(withServices: serviceUUIDs)
+        #endif
     }
     
     func stopScanning() {
-        centralManager?.stopScan()
         isScanning = false
-        logger.info("Stopped scanning")
+        #if !targetEnvironment(simulator)
+        centralManager?.stopScan()
+        #endif
     }
     
-    func connect(to peripheral: CBPeripheral) {
-        logger.info("Attempting to connect to peripheral: \(peripheral.identifier)")
+    func connect(to peripheral: Peripheral) {
         connectionState = .connecting
-        centralManager?.connect(peripheral, options: nil)
-    }
-    
-    // MARK: - Command Methods
-    func sendCommand(_ command: [UInt8], characteristic: CBUUID) {
-        guard let peripheral = connectedDevice else {
-            errorMessage = "No device connected"
-            return
+        #if targetEnvironment(simulator)
+        // Simulate connection delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.connectionState = .connected
+            self.connectedPeripheral = peripheral as? MockPeripheral
+            self.stopScanning()  // Stop scanning after connection
         }
-        
-        guard let service = peripheral.services?.first(where: { $0.uuid == writeServiceUUID }),
-              let characteristic = service.characteristics?.first(where: { $0.uuid == characteristic }) else {
-            errorMessage = "Required characteristic not found"
-            return
-        }
-        
-        peripheral.writeValue(Data(command), for: characteristic, type: .withResponse)
-        logger.info("Sent command: \(command) to characteristic: \(characteristic.uuid)")
-    }
-    
-    func checkMemoryStatus() {
-        let command: [UInt8] = [0x01] // Check memory command
-        sendCommand(command, characteristic: writeCharUUID)
-    }
-    
-    func requestStoredData() {
-        let command: [UInt8] = [0x02] // Request data command
-        sendCommand(command, characteristic: writeCharUUID)
+        #else
+        guard let cbPeripheral = peripheral as? CBPeripheral else { return }
+        centralManager?.connect(cbPeripheral)
+        stopScanning()  // Stop scanning after initiating connection
+        #endif
     }
     
     func startDataCollection() {
-        // Create command: 0x03 followed by current timestamp
-        var command: [UInt8] = [0x03]
-        let timestamp = UInt32(Date().timeIntervalSince1970 * 1000) // milliseconds
-        command.append(contentsOf: withUnsafeBytes(of: timestamp) { Array($0) })
+        #if targetEnvironment(simulator)
+        isCollectingData = true
+        mockTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.simulateNewReading()
+        }
+        #else
+        guard let peripheral = connectedPeripheral,
+              let characteristic = writeCharacteristic else { 
+            errorMessage = "Device not ready"
+            return 
+        }
         
-        sendCommand(command, characteristic: writeCharUUID)
+        isCollectingData = true
+        let command: [UInt8] = [1]
+        peripheral.writeValue(Data(command), for: characteristic, type: .withResponse)
+        #endif
     }
     
     func stopDataCollection() {
-        let command: [UInt8] = [0x04] // Stop and clear command
-        sendCommand(command, characteristic: writeCharUUID)
+        #if targetEnvironment(simulator)
+        mockTimer?.invalidate()
+        mockTimer = nil
+        isCollectingData = false
+        #else
+        guard let peripheral = connectedPeripheral,
+              let characteristic = writeCharacteristic else { return }
+        
+        isCollectingData = false
+        let command: [UInt8] = [0]
+        peripheral.writeValue(Data(command), for: characteristic, type: .withResponse)
+        #endif
     }
     
-    private func saveReading(_ nirData: NIRSpectrographyData?) {
-        guard let nirData = nirData,
-              let deviceId = connectedDevice?.identifier.uuidString,
-              let modelContext = modelContext else { return }
+    private func simulateDataSync() {
+        isSyncing = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            self?.isSyncing = false
+        }
+    }
+    
+    private func simulateNewReading() {
+        // Create mock data
+        let mockTimestamp = UInt32(Date().timeIntervalSince1970)
+        let mockValues: [UInt16] = [UInt16.random(in: 80...120)]
         
-        // Create a SensorData object for each sensor value
-        for (index, value) in nirData.sensorValues.enumerated() {
-            let reading = SensorData(
-                timestamp: Date(timeIntervalSince1970: TimeInterval(nirData.timestamp) / 1000.0),
-                value: Double(value),
-                deviceId: "\(deviceId)-sensor\(index)",
-                isSynced: false
-            )
-            modelContext.insert(reading)
+        // Pack data like the real device would
+        var mockData = Data()
+        mockData.append(contentsOf: withUnsafeBytes(of: mockTimestamp) { Array($0) })
+        mockValues.forEach { value in
+            mockData.append(contentsOf: withUnsafeBytes(of: value) { Array($0) })
         }
         
+        // Use the common handler
+        handleSensorData(mockData)
+    }
+    
+    private func syncDeviceTime() {
+        #if targetEnvironment(simulator)
+        guard let peripheral = connectedPeripheral,
+              let characteristic = mockWriteCharacteristic else { return }
+        
+        let timestamp = Date().timeIntervalSince1970
+        var timestampBytes = withUnsafeBytes(of: timestamp) { Array($0) }
+        
+        peripheral.writeValue(Data(timestampBytes), 
+                            for: characteristic, 
+                            type: .withResponse)
+        #else
+        guard let peripheral = connectedPeripheral,
+              let characteristic = writeCharacteristic else { return }
+        
+        let timestamp = Date().timeIntervalSince1970
+        var timestampBytes = withUnsafeBytes(of: timestamp) { Array($0) }
+        
+        peripheral.writeValue(Data(timestampBytes), 
+                            for: characteristic, 
+                            type: .withResponse)
+        #endif
+    }
+    
+    #if !targetEnvironment(simulator)
+    private func sendData(_ data: [UInt8]) {
+        guard let characteristic = writeCharacteristic,
+              let peripheral = connectedPeripheral else {
+            errorMessage = "Device not ready"
+            return
+        }
+        peripheral.writeValue(Data(data), for: characteristic, type: .withResponse)
+    }
+    #endif
+    
+    func checkMemoryStatus() {
         do {
-            try modelContext.save()
-            logger.info("Saved sensor readings to database")
+            let count = try modelContext.fetchCount(FetchDescriptor<SensorData>())
+            print("Stored readings: \(count)")
         } catch {
-            logger.error("Failed to save readings: \(error.localizedDescription)")
-            errorMessage = "Failed to save readings: \(error.localizedDescription)"
+            errorMessage = "Failed to check storage: \(error.localizedDescription)"
         }
+    }
+    
+    // MARK: - Common Methods
+    private func handleSensorData(_ data: Data?) {
+        guard let data = data else { return }
+        
+        // Parse the NIRSpectrographyData struct from Arduino
+        let timestamp = data.prefix(4).withUnsafeBytes { $0.load(as: UInt32.self) }
+        let sensorValues = Array(data.dropFirst(4)).withUnsafeBytes { 
+            Array($0.bindMemory(to: UInt16.self)) 
+        }
+        
+        // Create and save sensor readings
+        for (index, value) in sensorValues.enumerated() {
+            let newReading = SensorData(
+                timestamp: Date(timeIntervalSince1970: TimeInterval(timestamp)),
+                value: Double(value),
+                deviceId: connectedPeripheral?.identifier.uuidString ?? "unknown",
+                channelIndex: index
+            )
+            modelContext.insert(newReading)
+        }
+        
+        try? modelContext.save()
+        
+        // Send to server (implement your server communication here)
+        uploadToServer(sensorValues, timestamp: timestamp)
+    }
+    
+    private func uploadToServer(_ values: [UInt16], timestamp: UInt32) {
+        // Implement your server upload logic here
+        // This is just a placeholder
+        print("Uploading data to server: \(values.count) values at timestamp \(timestamp)")
     }
 }
 
-// MARK: - CBCentralManagerDelegate
+#if targetEnvironment(simulator)
+// Mock peripheral for simulator
+class MockCharacteristic {
+    var value: Data?
+}
+
+class MockPeripheral: NSObject, Peripheral {
+    let name: String?
+    let identifier: UUID
+    private var characteristics: [MockCharacteristic] = []
+    
+    init(name: String) {
+        self.name = name
+        self.identifier = UUID()
+        super.init()
+        characteristics = [MockCharacteristic()]
+    }
+    
+    func writeValue(_ data: Data, for characteristic: MockCharacteristic, type: CBCharacteristicWriteType) {
+        characteristic.value = data
+    }
+}
+#else
+// MARK: - Real Device Extensions
 extension BluetoothManager: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        switch central.state {
-        case .poweredOn:
-            logger.info("Bluetooth is powered on")
-            startScanning()
-        case .poweredOff:
-            logger.error("Bluetooth is powered off")
-            errorMessage = "Bluetooth is turned off"
-        case .unauthorized:
-            logger.error("Bluetooth is unauthorized")
-            errorMessage = "Bluetooth permission denied"
-        default:
-            logger.error("Bluetooth is unavailable: \(central.state.rawValue)")
+        if central.state != .poweredOn {
             errorMessage = "Bluetooth is not available"
         }
     }
     
-    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
+    func centralManager(_ central: CBCentralManager, 
+                       didDiscover peripheral: CBPeripheral,
+                       advertisementData: [String : Any], 
+                       rssi RSSI: NSNumber) {
         if !discoveredDevices.contains(peripheral) {
-            logger.info("Discovered peripheral: \(peripheral.identifier)")
             discoveredDevices.append(peripheral)
         }
     }
     
-    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        logger.info("Connected to peripheral: \(peripheral.identifier)")
-        connectedDevice = peripheral
-        connectionState = .connected
+    func centralManager(_ central: CBCentralManager, 
+                       didConnect peripheral: CBPeripheral) {
+        connectedPeripheral = peripheral
         peripheral.delegate = self
-        peripheral.discoverServices([batteryServiceUUID, writeServiceUUID, readServiceUUID])
-    }
-    
-    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        logger.error("Failed to connect: \(error?.localizedDescription ?? "unknown error")")
-        connectionState = .failed(error ?? NSError(domain: "com.example.datacollection", code: -1, userInfo: nil))
+        peripheral.discoverServices(serviceUUIDs)
+        connectionState = .connected
     }
 }
 
-// MARK: - CBPeripheralDelegate
 extension BluetoothManager: CBPeripheralDelegate {
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        if let error = error {
-            logger.error("Service discovery failed: \(error.localizedDescription)")
-            errorMessage = "Service discovery failed: \(error.localizedDescription)"
+    func peripheral(_ peripheral: CBPeripheral, 
+                   didDiscoverServices error: Error?) {
+        guard error == nil else {
+            errorMessage = error?.localizedDescription
             return
         }
         
         peripheral.services?.forEach { service in
-            switch service.uuid {
-            case batteryServiceUUID:
-                peripheral.discoverCharacteristics([batteryCharUUID], for: service)
-            case writeServiceUUID:
-                peripheral.discoverCharacteristics([writeCharUUID], for: service)
-            case readServiceUUID:
-                peripheral.discoverCharacteristics([notifyCharUUID], for: service)
-            default:
-                break
-            }
+            peripheral.discoverCharacteristics(characteristicUUIDs, for: service)
         }
     }
     
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        if let error = error {
-            logger.error("Characteristic discovery failed: \(error.localizedDescription)")
-            errorMessage = "Characteristic discovery failed: \(error.localizedDescription)"
+    func peripheral(_ peripheral: CBPeripheral, 
+                   didUpdateValueFor characteristic: CBCharacteristic, 
+                   error: Error?) {
+        guard error == nil else {
+            errorMessage = error?.localizedDescription
             return
         }
         
-        service.characteristics?.forEach { characteristic in
-            switch characteristic.uuid {
-            case notifyCharUUID:
-                peripheral.setNotifyValue(true, for: characteristic)
-            case batteryCharUUID:
-                peripheral.readValue(for: characteristic)
-            default:
-                break
-            }
-        }
-    }
-    
-    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        if let error = error {
-            logger.error("Value update failed: \(error.localizedDescription)")
-            errorMessage = "Value update failed: \(error.localizedDescription)"
-            return
-        }
-        
-        guard let data = characteristic.value else { return }
-        
-        switch characteristic.uuid {
-        case batteryCharUUID:
-            if let value = data.first {
-                batteryLevel = value
-                logger.info("Updated battery level: \(value)%")
-            }
-        case notifyCharUUID:
-            nirData = NIRSpectrographyData(data: data)
-            logger.info("Received NIR data")
-            saveReading(nirData)
-        default:
-            break
+        if characteristic.uuid == CBUUID(string: "2A3E") {
+            handleSensorData(characteristic.value)
         }
     }
 }
+#endif

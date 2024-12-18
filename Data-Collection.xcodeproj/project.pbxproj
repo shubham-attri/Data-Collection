@@ -12,6 +12,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		266BD0E62D133EAA00975C55 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 26A86CF82D1036CE00B32DA1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 266BD0D32D133EA600975C55;
+			remoteInfo = Datacollection;
+		};
+		266BD0F02D133EAA00975C55 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 26A86CF82D1036CE00B32DA1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 266BD0D32D133EA600975C55;
+			remoteInfo = Datacollection;
+		};
 		26A86D152D1036D100B32DA1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 26A86CF82D1036CE00B32DA1 /* Project object */;
@@ -29,6 +43,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		266BD0D42D133EA600975C55 /* Datacollection.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Datacollection.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		266BD0E52D133EAA00975C55 /* DatacollectionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DatacollectionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		266BD0EF2D133EAA00975C55 /* DatacollectionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DatacollectionUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		26A86D002D1036CE00B32DA1 /* Data-Collection.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Data-Collection.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26A86D142D1036D100B32DA1 /* Data-CollectionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Data-CollectionTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		26A86D1E2D1036D100B32DA1 /* Data-CollectionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Data-CollectionUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -66,6 +83,27 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		266BD0D12D133EA600975C55 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266BD0E22D133EAA00975C55 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266BD0EC2D133EAA00975C55 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		26A86CFD2D1036CE00B32DA1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -108,6 +146,9 @@
 				26A86D002D1036CE00B32DA1 /* Data-Collection.app */,
 				26A86D142D1036D100B32DA1 /* Data-CollectionTests.xctest */,
 				26A86D1E2D1036D100B32DA1 /* Data-CollectionUITests.xctest */,
+				266BD0D42D133EA600975C55 /* Datacollection.app */,
+				266BD0E52D133EAA00975C55 /* DatacollectionTests.xctest */,
+				266BD0EF2D133EAA00975C55 /* DatacollectionUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -115,6 +156,65 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		266BD0D32D133EA600975C55 /* Datacollection */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 266BD0F72D133EAA00975C55 /* Build configuration list for PBXNativeTarget "Datacollection" */;
+			buildPhases = (
+				266BD0D02D133EA600975C55 /* Sources */,
+				266BD0D12D133EA600975C55 /* Frameworks */,
+				266BD0D22D133EA600975C55 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Datacollection;
+			packageProductDependencies = (
+			);
+			productName = Datacollection;
+			productReference = 266BD0D42D133EA600975C55 /* Datacollection.app */;
+			productType = "com.apple.product-type.application";
+		};
+		266BD0E42D133EAA00975C55 /* DatacollectionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 266BD0FA2D133EAA00975C55 /* Build configuration list for PBXNativeTarget "DatacollectionTests" */;
+			buildPhases = (
+				266BD0E12D133EAA00975C55 /* Sources */,
+				266BD0E22D133EAA00975C55 /* Frameworks */,
+				266BD0E32D133EAA00975C55 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				266BD0E72D133EAA00975C55 /* PBXTargetDependency */,
+			);
+			name = DatacollectionTests;
+			packageProductDependencies = (
+			);
+			productName = DatacollectionTests;
+			productReference = 266BD0E52D133EAA00975C55 /* DatacollectionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		266BD0EE2D133EAA00975C55 /* DatacollectionUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 266BD0FD2D133EAA00975C55 /* Build configuration list for PBXNativeTarget "DatacollectionUITests" */;
+			buildPhases = (
+				266BD0EB2D133EAA00975C55 /* Sources */,
+				266BD0EC2D133EAA00975C55 /* Frameworks */,
+				266BD0ED2D133EAA00975C55 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				266BD0F12D133EAA00975C55 /* PBXTargetDependency */,
+			);
+			name = DatacollectionUITests;
+			packageProductDependencies = (
+			);
+			productName = DatacollectionUITests;
+			productReference = 266BD0EF2D133EAA00975C55 /* DatacollectionUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		26A86CFF2D1036CE00B32DA1 /* Data-Collection */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 26A86D272D1036D100B32DA1 /* Build configuration list for PBXNativeTarget "Data-Collection" */;
@@ -195,6 +295,17 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					266BD0D32D133EA600975C55 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					266BD0E42D133EAA00975C55 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 266BD0D32D133EA600975C55;
+					};
+					266BD0EE2D133EAA00975C55 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 266BD0D32D133EA600975C55;
+					};
 					26A86CFF2D1036CE00B32DA1 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -228,11 +339,35 @@
 				26A86CFF2D1036CE00B32DA1 /* Data-Collection */,
 				26A86D132D1036D100B32DA1 /* Data-CollectionTests */,
 				26A86D1D2D1036D100B32DA1 /* Data-CollectionUITests */,
+				266BD0D32D133EA600975C55 /* Datacollection */,
+				266BD0E42D133EAA00975C55 /* DatacollectionTests */,
+				266BD0EE2D133EAA00975C55 /* DatacollectionUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		266BD0D22D133EA600975C55 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266BD0E32D133EAA00975C55 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266BD0ED2D133EAA00975C55 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		26A86CFE2D1036CE00B32DA1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -257,6 +392,27 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		266BD0D02D133EA600975C55 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266BD0E12D133EAA00975C55 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		266BD0EB2D133EAA00975C55 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		26A86CFC2D1036CE00B32DA1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -281,6 +437,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		266BD0E72D133EAA00975C55 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 266BD0D32D133EA600975C55 /* Datacollection */;
+			targetProxy = 266BD0E62D133EAA00975C55 /* PBXContainerItemProxy */;
+		};
+		266BD0F12D133EAA00975C55 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 266BD0D32D133EA600975C55 /* Datacollection */;
+			targetProxy = 266BD0F02D133EAA00975C55 /* PBXContainerItemProxy */;
+		};
 		26A86D162D1036D100B32DA1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 26A86CFF2D1036CE00B32DA1 /* Data-Collection */;
@@ -294,19 +460,17 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		26A86D282D1036D100B32DA1 /* Debug */ = {
+		266BD0F82D133EAA00975C55 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "Data-Collection/Data_Collection.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Data-Collection/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Datacollection/Preview Content\"";
 				DEVELOPMENT_TEAM = 8H3B896Q88;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Data-Collection/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -317,8 +481,145 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "Non-Invasive-GM.Data-Collection";
+				PRODUCT_BUNDLE_IDENTIFIER = com.shubhamattri.Datacollection;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		266BD0F92D133EAA00975C55 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Datacollection/Preview Content\"";
+				DEVELOPMENT_TEAM = 8H3B896Q88;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shubhamattri.Datacollection;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		266BD0FB2D133EAA00975C55 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8H3B896Q88;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shubhamattri.DatacollectionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Datacollection.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Datacollection";
+			};
+			name = Debug;
+		};
+		266BD0FC2D133EAA00975C55 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8H3B896Q88;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shubhamattri.DatacollectionTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Datacollection.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Datacollection";
+			};
+			name = Release;
+		};
+		266BD0FE2D133EAA00975C55 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8H3B896Q88;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shubhamattri.DatacollectionUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Datacollection;
+			};
+			name = Debug;
+		};
+		266BD0FF2D133EAA00975C55 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8H3B896Q88;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shubhamattri.DatacollectionUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Datacollection;
+			};
+			name = Release;
+		};
+		26A86D282D1036D100B32DA1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = "Data-Collection/Data_Collection.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Data-Collection/Preview Content\"";
+				DEVELOPMENT_TEAM = 8H3B896Q88;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Data-Collection/Info.plist";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app needs Bluetooth access to collect sensor data";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app needs Bluetooth access to collect sensor data";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.shubhamattri.Data-Collection";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -330,7 +631,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = "Data-Collection/Data_Collection.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Data-Collection/Preview Content\"";
@@ -338,6 +641,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Data-Collection/Info.plist";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app needs Bluetooth access to collect sensor data";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app needs Bluetooth access to collect sensor data";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -348,8 +653,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "Non-Invasive-GM.Data-Collection";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.shubhamattri.Data-Collection";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -550,6 +856,33 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		266BD0F72D133EAA00975C55 /* Build configuration list for PBXNativeTarget "Datacollection" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				266BD0F82D133EAA00975C55 /* Debug */,
+				266BD0F92D133EAA00975C55 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		266BD0FA2D133EAA00975C55 /* Build configuration list for PBXNativeTarget "DatacollectionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				266BD0FB2D133EAA00975C55 /* Debug */,
+				266BD0FC2D133EAA00975C55 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		266BD0FD2D133EAA00975C55 /* Build configuration list for PBXNativeTarget "DatacollectionUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				266BD0FE2D133EAA00975C55 /* Debug */,
+				266BD0FF2D133EAA00975C55 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		26A86CFB2D1036CE00B32DA1 /* Build configuration list for PBXProject "Data-Collection" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

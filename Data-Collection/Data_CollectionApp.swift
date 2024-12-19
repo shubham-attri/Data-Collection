@@ -10,10 +10,10 @@ import SwiftData
 
 @main
 struct Data_CollectionApp: App {
-    var sharedModelContainer: ModelContainer = {
+    // Initialize SwiftData container
+    let modelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
-            SensorData.self  // Add SensorData to the schema
+            SensorData.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -26,8 +26,8 @@ struct Data_CollectionApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(modelContext: sharedModelContainer.mainContext)
+            ContentView()
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(modelContainer)
     }
 }

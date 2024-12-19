@@ -1,2 +1,16 @@
 .build/
+
+
+# Xcode
 .DS_Store
+xcuserdata/
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+DerivedData/
+.swiftpm/
+
+# CocoaPods
+Pods/
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata 
+

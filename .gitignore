@@ -1,3 +1,6 @@
+.build/
+
+
 # Xcode
 .DS_Store
 xcuserdata/
@@ -10,3 +13,4 @@ DerivedData/
 Pods/
 *.xcworkspace
 !*.xcworkspace/contents.xcworkspacedata 
+
